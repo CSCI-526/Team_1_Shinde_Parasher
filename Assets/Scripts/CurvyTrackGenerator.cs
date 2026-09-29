@@ -1,499 +1,326 @@
 using UnityEngine;
 
+[ExecuteAlways]
 [RequireComponent(typeof(EdgeCollider2D))]
-[RequireComponent(typeof(MeshFilter))]
-[RequireComponent(typeof(MeshRenderer))]
+[RequireComponent(typeof(LineRenderer))]
 public class CurvyTrackGenerator : MonoBehaviour
 {
     [Header("ROAD SETTINGS")]
-    [SerializeField] private float roadWidth = 1.6f;
+    [SerializeField] private float roadWidth = 3.5f;
     [SerializeField] private float edgeLineWidth = 0.10f;
 
     [Header("ROAD COLORS")]
-    [SerializeField] private Color roadColor = new Color(0.12f, 0.13f, 0.15f, 1f);
-    [SerializeField] private Color edgeColor = Color.white;
+    [SerializeField] private Color roadColor =
+        new Color(0.08f, 0.08f, 0.08f, 1f);
+
+    [Header("TRACK SETTINGS")]
+    [SerializeField] private float pointSpacing = 3f;
 
     [Header("TRACK POINTS")]
-    [SerializeField] private float pointSpacing = 2.5f;
-
-    private EdgeCollider2D edgeCollider;
-    private MeshFilter meshFilter;
-    private MeshRenderer meshRenderer;
-
-    private LineRenderer leftEdge;
-    private LineRenderer rightEdge;
-
-    /*
-     * MAIN TRACK
-     *
-     * This is deliberately smoother and more user-friendly
-     * than the previous version.
-     */
-    private readonly Vector2[] trackPoints =
+    [SerializeField] private Vector2[] trackPoints =
     {
-        // ------------------------------------------------
+        // =====================================================
         // START
-        // ------------------------------------------------
+        // =====================================================
 
-        new Vector2(0f, 0.0f),
-        new Vector2(2.5f, 0.0f),
-        new Vector2(5f, 0.1f),
-        new Vector2(7.5f, 0.3f),
+        new Vector2(0f, 0f),
+        new Vector2(3f, 0.05f),
+        new Vector2(6f, 0.10f),
+        new Vector2(9f, 0.05f),
 
-        // ------------------------------------------------
-        // FIRST HILL
-        // ------------------------------------------------
+        // =====================================================
+        // SMALL CLIMB
+        // =====================================================
 
-        new Vector2(10f, 0.8f),
-        new Vector2(12.5f, 1.5f),
-        new Vector2(15f, 2.1f),
-        new Vector2(17.5f, 2.3f),
-        new Vector2(20f, 1.9f),
-        new Vector2(22.5f, 1.2f),
+        new Vector2(12f, 0.20f),
+        new Vector2(15f, 0.55f),
+        new Vector2(18f, 0.90f),
+        new Vector2(21f, 1.05f),
 
-        // ------------------------------------------------
-        // VALLEY
-        // ------------------------------------------------
+        // =====================================================
+        // DOWNHILL
+        // =====================================================
 
-        new Vector2(25f, 0.5f),
-        new Vector2(27.5f, 0.2f),
-        new Vector2(30f, 0.3f),
+        new Vector2(24f, 0.80f),
+        new Vector2(27f, 0.45f),
+        new Vector2(30f, 0.15f),
+        new Vector2(33f, 0.05f),
 
-        // ------------------------------------------------
-        // SECOND HILL
-        // ------------------------------------------------
+        // =====================================================
+        // ROLLING HILLS
+        // =====================================================
 
-        new Vector2(32.5f, 0.8f),
-        new Vector2(35f, 1.6f),
-        new Vector2(37.5f, 2.5f),
-        new Vector2(40f, 3.0f),
-        new Vector2(42.5f, 2.8f),
-        new Vector2(45f, 2.1f),
-        new Vector2(47.5f, 1.2f),
+        new Vector2(36f, 0.30f),
+        new Vector2(39f, 0.75f),
+        new Vector2(42f, 0.90f),
+        new Vector2(45f, 0.55f),
+        new Vector2(48f, 0.20f),
+        new Vector2(51f, 0.05f),
 
-        // ------------------------------------------------
-        // DEEP VALLEY
-        // ------------------------------------------------
+        // =====================================================
+        // BIG CLIMB 1
+        // =====================================================
 
-        new Vector2(50f, 0.5f),
-        new Vector2(52.5f, 0.2f),
-        new Vector2(55f, 0.4f),
+        new Vector2(54f, 0.25f),
+        new Vector2(57f, 0.65f),
+        new Vector2(60f, 1.10f),
+        new Vector2(63f, 1.55f),
+        new Vector2(66f, 1.80f),
 
-        // ------------------------------------------------
-        // BIG HILL
-        // ------------------------------------------------
+        // =====================================================
+        // BIG DOWNHILL 1
+        // =====================================================
 
-        new Vector2(57.5f, 1.2f),
-        new Vector2(60f, 2.2f),
-        new Vector2(62.5f, 3.2f),
-        new Vector2(65f, 4.0f),
-        new Vector2(67.5f, 4.3f),
-        new Vector2(70f, 4.0f),
-        new Vector2(72.5f, 3.2f),
-        new Vector2(75f, 2.1f),
+        new Vector2(69f, 1.55f),
+        new Vector2(72f, 1.10f),
+        new Vector2(75f, 0.60f),
+        new Vector2(78f, 0.20f),
+        new Vector2(81f, 0.05f),
 
-        // ------------------------------------------------
-        // ROLLER SECTION
-        // ------------------------------------------------
+        // =====================================================
+        // VALLEY + HILL
+        // =====================================================
 
-        new Vector2(77.5f, 1.0f),
-        new Vector2(80f, 1.4f),
-        new Vector2(82.5f, 2.4f),
-        new Vector2(85f, 3.0f),
-        new Vector2(87.5f, 2.4f),
-        new Vector2(90f, 1.4f),
+        new Vector2(84f, 0.20f),
+        new Vector2(87f, 0.60f),
+        new Vector2(90f, 0.95f),
+        new Vector2(93f, 0.70f),
+        new Vector2(96f, 0.30f),
+        new Vector2(99f, 0.10f),
 
-        // ------------------------------------------------
+        // =====================================================
+        // BIG CLIMB 2
+        // =====================================================
+
+        new Vector2(102f, 0.35f),
+        new Vector2(105f, 0.85f),
+        new Vector2(108f, 1.35f),
+        new Vector2(111f, 1.80f),
+        new Vector2(114f, 2.05f),
+
+        // =====================================================
+        // LONG DOWNHILL
+        // =====================================================
+
+        new Vector2(117f, 1.75f),
+        new Vector2(120f, 1.35f),
+        new Vector2(123f, 0.90f),
+        new Vector2(126f, 0.50f),
+        new Vector2(129f, 0.25f),
+
+        // =====================================================
         // FINAL CLIMB
-        // ------------------------------------------------
+        // =====================================================
 
-        new Vector2(92.5f, 1.0f),
-        new Vector2(95f, 1.7f),
-        new Vector2(97.5f, 2.7f),
-        new Vector2(100f, 3.8f),
-        new Vector2(102.5f, 4.7f),
-        new Vector2(105f, 5.0f),
+        new Vector2(132f, 0.35f),
+        new Vector2(135f, 0.75f),
+        new Vector2(138f, 1.20f),
+        new Vector2(141f, 1.65f),
+        new Vector2(144f, 2.00f),
 
-        // ------------------------------------------------
-        // FINAL DOWNHILL
-        // ------------------------------------------------
-
-        new Vector2(107.5f, 4.5f),
-        new Vector2(110f, 3.6f),
-        new Vector2(112.5f, 2.4f),
-        new Vector2(115f, 1.5f),
-
-        // ------------------------------------------------
+        // =====================================================
         // FINISH
-        // ------------------------------------------------
+        // Matches FinishLine X = 147.5, Y = 2.3
+        // =====================================================
 
-        new Vector2(117.5f, 1.0f),
-        new Vector2(120f, 1.0f)
+        new Vector2(147.5f, 2.30f)
     };
 
+    private EdgeCollider2D edgeCollider;
+    private LineRenderer lineRenderer;
+
     private void Awake()
+    {
+        SetupComponents();
+    }
+
+    private void Start()
     {
         GenerateTrack();
     }
 
-    private void GenerateTrack()
+#if UNITY_EDITOR
+    private void OnValidate()
     {
-        edgeCollider = GetComponent<EdgeCollider2D>();
-        meshFilter = GetComponent<MeshFilter>();
-        meshRenderer = GetComponent<MeshRenderer>();
+        SetupComponents();
 
-        GenerateRoadMesh();
-        GenerateCollision();
-        GenerateRoadEdges();
+        if (!Application.isPlaying)
+        {
+            GenerateTrack();
+        }
+    }
+#endif
 
-        Debug.Log(
-            "Weight Rush track generated with " +
-            trackPoints.Length +
-            " points."
-        );
+    // =========================================================
+    // COMPONENT SETUP
+    // =========================================================
+
+    private void SetupComponents()
+    {
+        if (edgeCollider == null)
+        {
+            edgeCollider = GetComponent<EdgeCollider2D>();
+        }
+
+        if (lineRenderer == null)
+        {
+            lineRenderer = GetComponent<LineRenderer>();
+        }
+
+        if (lineRenderer == null)
+        {
+            return;
+        }
+
+        lineRenderer.useWorldSpace = false;
+        lineRenderer.loop = false;
+
+        lineRenderer.numCapVertices = 8;
+        lineRenderer.numCornerVertices = 8;
+
+        lineRenderer.alignment = LineAlignment.TransformZ;
+
+        lineRenderer.textureMode =
+            LineTextureMode.Stretch;
+
+        lineRenderer.sortingLayerName = "Default";
+
+        // Road behind car and pickups.
+        lineRenderer.sortingOrder = -10;
     }
 
-    // ====================================================
-    // COLLISION
-    // ====================================================
+    // =========================================================
+    // GENERATE TRACK
+    // =========================================================
 
-    private void GenerateCollision()
+    private void GenerateTrack()
+    {
+        if (trackPoints == null ||
+            trackPoints.Length < 2)
+        {
+            return;
+        }
+
+        SetupComponents();
+
+        GenerateRoadVisual();
+        GenerateRoadCollision();
+    }
+
+    // =========================================================
+    // ROAD VISUAL
+    // =========================================================
+
+    private void GenerateRoadVisual()
+    {
+        lineRenderer.positionCount =
+            trackPoints.Length;
+
+        for (int i = 0; i < trackPoints.Length; i++)
+        {
+            lineRenderer.SetPosition(
+                i,
+                new Vector3(
+                    trackPoints[i].x,
+                    trackPoints[i].y,
+                    0f
+                )
+            );
+        }
+
+        lineRenderer.startWidth = roadWidth;
+        lineRenderer.endWidth = roadWidth;
+
+        lineRenderer.startColor = roadColor;
+        lineRenderer.endColor = roadColor;
+
+        lineRenderer.loop = false;
+    }
+
+    // =========================================================
+    // ROAD COLLISION
+    // =========================================================
+
+    private void GenerateRoadCollision()
     {
         Vector2[] collisionPoints =
             new Vector2[trackPoints.Length];
 
-        for (int i = 0; i < trackPoints.Length; i++)
-        {
-            Vector2 normal = GetUpwardNormal(i);
+        float halfWidth =
+            roadWidth * 0.5f;
 
-            /*
-             * IMPORTANT:
-             *
-             * The collider is placed at the TOP of the road.
-             *
-             * This prevents the car from being half inside
-             * the visible road.
-             */
+        for (int i = 0;
+             i < trackPoints.Length;
+             i++)
+        {
+            Vector2 tangent;
+
+            if (i == 0)
+            {
+                tangent =
+                    trackPoints[1] -
+                    trackPoints[0];
+            }
+            else if (i == trackPoints.Length - 1)
+            {
+                tangent =
+                    trackPoints[i] -
+                    trackPoints[i - 1];
+            }
+            else
+            {
+                tangent =
+                    trackPoints[i + 1] -
+                    trackPoints[i - 1];
+            }
+
+            tangent.Normalize();
+
+            Vector2 normal =
+                new Vector2(
+                    -tangent.y,
+                    tangent.x
+                );
+
+            // Keep collision surface on top
+            // of the road.
+            if (normal.y < 0f)
+            {
+                normal *= -1f;
+            }
+
             collisionPoints[i] =
                 trackPoints[i] +
-                normal * (roadWidth * 0.5f);
+                normal * halfWidth;
         }
 
-        edgeCollider.points = collisionPoints;
+        edgeCollider.points =
+            collisionPoints;
+
+        edgeCollider.edgeRadius = 0.08f;
     }
 
-    // ====================================================
-    // ROAD MESH
-    // ====================================================
+    // =========================================================
+    // PUBLIC HELPERS
+    // =========================================================
 
-    private void GenerateRoadMesh()
+    public Vector2[] GetTrackPoints()
     {
-        Mesh mesh = new Mesh();
-
-        mesh.name = "Weight Rush Road";
-
-        Vector3[] vertices =
-            new Vector3[trackPoints.Length * 2];
-
-        Vector2[] uv =
-            new Vector2[trackPoints.Length * 2];
-
-        int[] triangles =
-            new int[(trackPoints.Length - 1) * 6];
-
-        for (int i = 0; i < trackPoints.Length; i++)
-        {
-            Vector2 normal =
-                GetUpwardNormal(i);
-
-            Vector2 top =
-                trackPoints[i] +
-                normal * (roadWidth * 0.5f);
-
-            Vector2 bottom =
-                trackPoints[i] -
-                normal * (roadWidth * 0.5f);
-
-            vertices[i * 2] =
-                new Vector3(
-                    top.x,
-                    top.y,
-                    0f
-                );
-
-            vertices[i * 2 + 1] =
-                new Vector3(
-                    bottom.x,
-                    bottom.y,
-                    0f
-                );
-
-            float u =
-                i / (float)(trackPoints.Length - 1);
-
-            uv[i * 2] =
-                new Vector2(u, 1f);
-
-            uv[i * 2 + 1] =
-                new Vector2(u, 0f);
-        }
-
-        int triangleIndex = 0;
-
-        for (int i = 0; i < trackPoints.Length - 1; i++)
-        {
-            int topLeft = i * 2;
-            int bottomLeft = i * 2 + 1;
-
-            int topRight = (i + 1) * 2;
-            int bottomRight = (i + 1) * 2 + 1;
-
-            triangles[triangleIndex++] = topLeft;
-            triangles[triangleIndex++] = bottomLeft;
-            triangles[triangleIndex++] = topRight;
-
-            triangles[triangleIndex++] = topRight;
-            triangles[triangleIndex++] = bottomLeft;
-            triangles[triangleIndex++] = bottomRight;
-        }
-
-        mesh.vertices = vertices;
-        mesh.triangles = triangles;
-        mesh.uv = uv;
-
-        mesh.RecalculateBounds();
-        mesh.RecalculateNormals();
-
-        meshFilter.mesh = mesh;
-
-        CreateRoadMaterial();
+        return trackPoints;
     }
 
-    // ====================================================
-    // ROAD MATERIAL
-    // ====================================================
-
-    private void CreateRoadMaterial()
+    public Vector2 GetTrackStart()
     {
-        Shader shader =
-            Shader.Find(
-                "Universal Render Pipeline/Unlit"
-            );
-
-        if (shader == null)
-        {
-            shader =
-                Shader.Find("Sprites/Default");
-        }
-
-        if (shader == null)
-        {
-            Debug.LogWarning(
-                "Could not find a suitable road shader."
-            );
-
-            return;
-        }
-
-        Material material =
-            new Material(shader);
-
-        material.name =
-            "Weight Rush Road Material";
-
-        material.color =
-            roadColor;
-
-        meshRenderer.material =
-            material;
-
-        meshRenderer.sortingOrder = 5;
+        return trackPoints[0];
     }
 
-    // ====================================================
-    // ROAD EDGE LINES
-    // ====================================================
-
-    private void GenerateRoadEdges()
+    public Vector2 GetTrackFinish()
     {
-        leftEdge =
-            CreateEdgeLine(
-                "Left Road Edge"
-            );
-
-        rightEdge =
-            CreateEdgeLine(
-                "Right Road Edge"
-            );
-
-        Vector3[] leftPoints =
-            new Vector3[trackPoints.Length];
-
-        Vector3[] rightPoints =
-            new Vector3[trackPoints.Length];
-
-        for (int i = 0; i < trackPoints.Length; i++)
-        {
-            Vector2 normal =
-                GetUpwardNormal(i);
-
-            Vector2 top =
-                trackPoints[i] +
-                normal * (roadWidth * 0.5f);
-
-            /*
-             * Slightly above the road so the
-             * white line is clearly visible.
-             */
-            Vector2 left =
-                top +
-                normal * 0.03f;
-
-            Vector2 right =
-                top +
-                normal * 0.03f;
-
-            leftPoints[i] =
-                new Vector3(
-                    left.x,
-                    left.y,
-                    -0.05f
-                );
-
-            rightPoints[i] =
-                new Vector3(
-                    right.x,
-                    right.y,
-                    -0.05f
-                );
-        }
-
-        /*
-         * Both lines use the same road top edge.
-         *
-         * The visual road itself provides the
-         * main road surface.
-         */
-        leftEdge.positionCount =
-            trackPoints.Length;
-
-        rightEdge.positionCount =
-            trackPoints.Length;
-
-        leftEdge.SetPositions(
-            leftPoints
-        );
-
-        rightEdge.SetPositions(
-            rightPoints
-        );
+        return trackPoints[trackPoints.Length - 1];
     }
 
-    // ====================================================
-    // CREATE LINE
-    // ====================================================
-
-    private LineRenderer CreateEdgeLine(
-        string objectName
-    )
+    public float GetRoadWidth()
     {
-        GameObject lineObject =
-            new GameObject(objectName);
-
-        lineObject.transform.SetParent(
-            transform
-        );
-
-        lineObject.transform.localPosition =
-            Vector3.zero;
-
-        LineRenderer line =
-            lineObject.AddComponent<LineRenderer>();
-
-        line.useWorldSpace = false;
-
-        line.startWidth =
-            edgeLineWidth;
-
-        line.endWidth =
-            edgeLineWidth;
-
-        line.numCornerVertices = 8;
-        line.numCapVertices = 8;
-
-        line.startColor =
-            edgeColor;
-
-        line.endColor =
-            edgeColor;
-
-        line.sortingOrder = 10;
-
-        Shader shader =
-            Shader.Find("Sprites/Default");
-
-        if (shader != null)
-        {
-            Material material =
-                new Material(shader);
-
-            material.color =
-                edgeColor;
-
-            line.material =
-                material;
-        }
-
-        return line;
-    }
-
-    // ====================================================
-    // UPWARD NORMAL
-    // ====================================================
-
-    private Vector2 GetUpwardNormal(int index)
-    {
-        Vector2 tangent;
-
-        if (index == 0)
-        {
-            tangent =
-                trackPoints[1] -
-                trackPoints[0];
-        }
-        else if (index ==
-                 trackPoints.Length - 1)
-        {
-            tangent =
-                trackPoints[index] -
-                trackPoints[index - 1];
-        }
-        else
-        {
-            tangent =
-                trackPoints[index + 1] -
-                trackPoints[index - 1];
-        }
-
-        tangent.Normalize();
-
-        /*
-         * Perpendicular vector.
-         */
-        Vector2 normal =
-            new Vector2(
-                -tangent.y,
-                tangent.x
-            );
-
-        /*
-         * Always choose the upward-facing normal.
-         */
-        if (normal.y < 0f)
-        {
-            normal = -normal;
-        }
-
-        return normal.normalized;
+        return roadWidth;
     }
 }
