@@ -2,18 +2,30 @@ using UnityEngine;
 
 public class PointPickup : MonoBehaviour
 {
-    public int pointValue = 1;
+    [SerializeField] private int pointValue = 1;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!other.CompareTag("Player"))
             return;
 
-        if (GameManager.Instance != null)
+        // Add score through GameManager
+        GameManager gameManager = FindFirstObjectByType<GameManager>();
+
+        if (gameManager != null)
         {
-            GameManager.Instance.AddScore(pointValue);
+            gameManager.AddScore(pointValue);
         }
 
+        // Add weight through WeightSystem
+        WeightSystem weightSystem = other.GetComponent<WeightSystem>();
+
+        if (weightSystem != null)
+        {
+            weightSystem.AddWeightForPoint();
+        }
+
+        // Remove the pickup
         Destroy(gameObject);
     }
 }

@@ -21,6 +21,9 @@ public class GameManager : MonoBehaviour
     public GameObject winPanel;
     public GameObject losePanel;
 
+    [Header("Player")]
+    public WeightSystem playerWeightSystem;
+
     private bool gameEnded = false;
 
     private void Awake()
@@ -42,6 +45,22 @@ public class GameManager : MonoBehaviour
         if (winPanel != null)
         {
             winPanel.SetActive(false);
+        }
+
+        if (losePanel != null)
+        {
+            losePanel.SetActive(false);
+        }
+
+        // Automatically find the player's WeightSystem if not assigned
+        if (playerWeightSystem == null)
+        {
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+            if (player != null)
+            {
+                playerWeightSystem = player.GetComponent<WeightSystem>();
+            }
         }
 
         UpdateUI();
@@ -96,11 +115,11 @@ public class GameManager : MonoBehaviour
 
         if (losePanel != null)
         {
-        losePanel.SetActive(true);
-    }
+            losePanel.SetActive(true);
+        }
 
-    Debug.Log("TIME'S UP! YOU LOSE!");
-}
+        Debug.Log("TIME'S UP! YOU LOSE!");
+    }
 
     public void RestartGame()
     {
@@ -121,9 +140,11 @@ public class GameManager : MonoBehaviour
             timeText.text = "Time: " + Mathf.CeilToInt(timeRemaining);
         }
 
-        if (weightText != null)
+        if (weightText != null && playerWeightSystem != null)
         {
-            weightText.text = "Weight: 1.0x";
+            float currentWeight = playerWeightSystem.GetCurrentWeight();
+
+            weightText.text = "Weight: " + currentWeight.ToString("F1") + "x";
         }
     }
 }
