@@ -7,8 +7,8 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
 
     [Header("Game Settings")]
-    public int targetScore = 10;
-    public float gameTime = 60f;
+    public int targetScore = 8;
+    public float gameTime = 40f;
 
     [Header("Current Game State")]
     public int score = 0;

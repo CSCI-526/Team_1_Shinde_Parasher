@@ -1488,7 +1488,7 @@ MonoBehaviour:
     Space - Reduce
     Points
 
-    Collect 10 points
+    Collect 8 points
 
     Reach the finish!'
   m_isRightToLeft: 0
@@ -3318,8 +3318,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f7b2f45c4bb6f42e8801437a9ea9249d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  targetScore: 10
-  gameTime: 60
+  targetScore: 8
+  gameTime: 40
   score: 0
   timeRemaining: 0
   scoreText: {fileID: 1710854952}
@@ -4469,7 +4469,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Collect 10 points and reach the finish!
+  m_text: Collect 8 points and reach the finish!
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
