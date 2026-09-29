@@ -13,6 +13,7 @@ public class CarController : MonoBehaviour
 
     [Header("Rotation")]
     [SerializeField] private float rotationSpeed = 150f;
+    [SerializeField] private float recoveryAngle = 25f;
 
     [Header("Braking")]
     [SerializeField] private float brakeForce = 5f;
@@ -33,7 +34,7 @@ public class CarController : MonoBehaviour
 
         HandleMovement(moveInput);
         HandleDownhillMomentum();
-        HandleRotation(moveInput, rotateInput);
+        HandleRotation(rotateInput);
         HandleBraking(moveInput);
         LimitSpeed();
     }
@@ -84,20 +85,23 @@ public class CarController : MonoBehaviour
         }
     }
 
-    private void HandleRotation(float moveInput, float rotateInput)
+    private void HandleRotation(float rotateInput)
     {
         if (Mathf.Abs(rotateInput) < 0.01f)
             return;
 
-        if (Mathf.Abs(moveInput) < 0.01f)
-            return;
+        // Only allow W/S rotation when the car is significantly tilted.
+        float tiltAngle = Mathf.Abs(
+            Mathf.DeltaAngle(0f, rb.rotation)
+        );
 
-        float direction = moveInput > 0 ? -1f : 1f;
+        if (tiltAngle < recoveryAngle)
+            return;
 
         rb.MoveRotation(
             rb.rotation +
             rotateInput * rotationSpeed *
-            Time.fixedDeltaTime * direction
+            Time.fixedDeltaTime
         );
     }
 
