@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
             losePanel.SetActive(false);
         }
 
-        // Automatically find the player's WeightSystem if not assigned
+        // Automatically find the player's WeightSystem
         if (playerWeightSystem == null)
         {
             GameObject player = GameObject.FindGameObjectWithTag("Player");
@@ -82,6 +82,10 @@ public class GameManager : MonoBehaviour
         UpdateUI();
     }
 
+    // -----------------------------------------
+    // SCORE
+    // -----------------------------------------
+
     public void AddScore(int amount)
     {
         if (gameEnded)
@@ -93,6 +97,41 @@ public class GameManager : MonoBehaviour
 
         UpdateUI();
     }
+
+    // -----------------------------------------
+    // FINISH LINE
+    // -----------------------------------------
+
+    public void ReachFinish()
+    {
+        if (gameEnded)
+            return;
+
+        Debug.Log(
+            "Finish reached! Score: " +
+            score +
+            " / " +
+            targetScore
+        );
+
+        // Player has enough points
+        if (score >= targetScore)
+        {
+            WinGame();
+        }
+        else
+        {
+            Debug.Log(
+                "Not enough points! Need " +
+                (targetScore - score) +
+                " more."
+            );
+        }
+    }
+
+    // -----------------------------------------
+    // WIN
+    // -----------------------------------------
 
     public void WinGame()
     {
@@ -109,8 +148,15 @@ public class GameManager : MonoBehaviour
         Debug.Log("YOU WIN!");
     }
 
+    // -----------------------------------------
+    // LOSE
+    // -----------------------------------------
+
     private void LoseGame()
     {
+        if (gameEnded)
+            return;
+
         gameEnded = true;
 
         if (losePanel != null)
@@ -121,12 +167,20 @@ public class GameManager : MonoBehaviour
         Debug.Log("TIME'S UP! YOU LOSE!");
     }
 
+    // -----------------------------------------
+    // RESTART
+    // -----------------------------------------
+
     public void RestartGame()
     {
         Scene currentScene = SceneManager.GetActiveScene();
 
         SceneManager.LoadScene(currentScene.name);
     }
+
+    // -----------------------------------------
+    // UI
+    // -----------------------------------------
 
     private void UpdateUI()
     {
@@ -137,14 +191,20 @@ public class GameManager : MonoBehaviour
 
         if (timeText != null)
         {
-            timeText.text = "Time: " + Mathf.CeilToInt(timeRemaining);
+            timeText.text =
+                "Time: " +
+                Mathf.CeilToInt(timeRemaining);
         }
 
         if (weightText != null && playerWeightSystem != null)
         {
-            float currentWeight = playerWeightSystem.GetCurrentWeight();
+            float currentWeight =
+                playerWeightSystem.GetCurrentWeight();
 
-            weightText.text = "Weight: " + currentWeight.ToString("F1") + "x";
+            weightText.text =
+                "Weight: " +
+                currentWeight.ToString("F1") +
+                "x";
         }
     }
 }

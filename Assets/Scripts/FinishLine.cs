@@ -7,16 +7,14 @@ public class FinishLine : MonoBehaviour
         if (!other.CompareTag("Player"))
             return;
 
-        if (GameManager.Instance == null)
-            return;
+        GameManager gameManager = FindFirstObjectByType<GameManager>();
 
-        if (GameManager.Instance.score >= GameManager.Instance.targetScore)
+        if (gameManager == null)
         {
-            GameManager.Instance.WinGame();
+            Debug.LogError("GameManager not found!");
+            return;
         }
-        else
-        {
-            Debug.Log("You need more points!");
-        }
+
+        gameManager.ReachFinish();
     }
 }
